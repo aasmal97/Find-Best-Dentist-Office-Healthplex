@@ -23,6 +23,7 @@ def match_dynamic_regex(regex, str):
         return float(number)
     else: 
         return 0
+
 def get_data_from_single_pg(driver):
     ratings_parent = get_element(driver, "//div[@jsaction='pane.rating.moreReviews'][@role = 'button']", 2)
     if ratings_parent == None: 
@@ -109,3 +110,21 @@ def get_data(driver, address_els, data = []):
         driver.close()
         driver.switch_to.window(driver.window_handles[0])
     return data    
+def loop_through_data(driver):
+    data = []
+    #grab all elements that contain addresses
+    pagination_list = get_element(driver, "//ul[@class = 'pagination']")
+    next_list_item = pagination_list.find_element(By.XPATH, ".//li[contains(@class, 'next')]")
+    next_item_classes = next_list_item.get_attribute("class")
+    pattern = re.compile('disabled')
+    while pattern.search(next_item_classes) == None: 
+        get_element(driver, "//div[@class = 'address']", 30)
+        address_els = driver.find_elements(By.XPATH, "//div[@class = 'address']")
+        data += get_data(driver, address_els)
+        link = next_list_item.find_element(By.XPATH, ".//a[@href = '#']")
+        link.click()
+        #click on element
+        pagination_list = get_element(driver, "//ul[@class = 'pagination']", 10)
+        next_list_item = pagination_list.find_element(By.XPATH, ".//li[contains(@class, 'next')]")
+        next_item_classes = next_list_item.get_attribute("class")
+    return data
