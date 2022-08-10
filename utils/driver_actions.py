@@ -16,11 +16,14 @@ def get_element(driver, search_path, custom_time = 5):
 def click_element(driver, elementPath):
     element = get_element(driver, elementPath)
     element.click()
-def match_dynamic_regex(regex, str): 
+def match_dynamic_regex(regex, str):
     pattern = re.compile(regex)
-    if pattern.search(str):
-        number = re.findall('\d*\.?\d+', str)[0]
-        return float(number)
+    strip_str = str.strip()
+    substrings = re.split(r' {2,}', strip_str)
+    for new_str in substrings:
+        if pattern.search(new_str):
+            number = re.findall('\d*\.?\d+', new_str)[0]
+            return float(number)
     else: 
         return 0
 
@@ -87,12 +90,16 @@ def use_office_name(driver, idx):
     driver.switch_to.window(driver.window_handles[1])
     search_input = driver.find_element(By.XPATH, "//input[@id = 'searchboxinput']")
     search_btn = driver.find_element(By.XPATH, "//button[@aria-label = 'Search']")
+    clear_search = driver.find_element(By.XPATH, "//a[@aria-label = 'Clear search']")
+    clear_search.click()
     search_input.send_keys(name)
     search_btn.click()
     return get_rating_and_reviews(driver)
 
 def get_data(driver, address_els, data = []):
     #switch to new tab
+    office_names = driver.find_elements(By.XPATH, "//div[contains(@class, 'name')]")
+    names = [x.text for x in office_names]
     for idx, address in enumerate(address_els):
         text_el = address.text
         #click on link to google maps page
@@ -103,7 +110,7 @@ def get_data(driver, address_els, data = []):
         #we use the name of office for improved search
         if int(rating) == 0 and int(review) == 0:
             rating, review = use_office_name(driver, idx)
-        new_row = [text_el, rating, review]
+        new_row = [names[idx], text_el, rating, review]
         print(new_row)
         data.append(new_row)
         #set window back to search page

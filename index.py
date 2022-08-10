@@ -12,12 +12,10 @@ def main(params):
         "btnPath": "//input[@type='submit'][@value = 'SEARCH']"
     }
     navigate_and_search(navigate_params)
-    # [main_tab, google_maps_tab] = open_google_maps_tab(driver)
     #enter search parameters on main tab
     search_offices(driver, params['searchInputs'])
     data = loop_through_data(driver)
-    print(data)
-    df = pd.DataFrame(data, columns=["Address", "Rating", "Review"])
+    df = pd.DataFrame(data, columns=['Name',"Address", "Rating", "Review"])
     df.to_csv("results.csv")
 if __name__ == "__main__":
     main({
